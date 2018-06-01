@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+    <div class="container">
+        <div class="container h-100 ">
+            <div class="row h-100 justify-content-center align-items-center">
+                <div class="col-12 align-self-center">
+                    <div class="card card-outline-success mb-3" style="margin-left: 100px; margin-right: 100px">
+                        <div style="background-color: #51575d;" class="card-header">
+                            <h5 style="color: whitesmoke">Statut</h5>
+                        </div>
+                        <div class="card-block">
+                            <p class="card-text">
+                            <div class="container">
+                                <div class="row justify-content-md-center">
+
+                                    {% if app.user %}
+                                        <img style="width: 100px;" src="{{ asset('img/valid.png') }}"> <h3
+                                            style="margin-top: 25px">Vous êtes connecté.</h3>
+                                    {% else %}
+                                        <img style="width: 100px;" src="{{ asset('img/denied.png') }}"> <h3
+                                            style="margin-top: 25px">Vous n'etes pas connecté.</h3>
+                                    {% endif %}
+                                </div>
+                                {% if not app.user %}
+                                    <br>Vous devriez vous <a href="{{ path('fos_user_security_login') }}">connecter</a>
+                                {% else %}
+                                    <br>Se <a href="{{ path('fos_user_security_logout') }}">déconnecter</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if app.user %}
+            <div class="row h-100 justify-content-center align-items-center">
+                <div class="col-12 align-self-center">
+                    <div class="card card-outline-success mb-3" style="margin-left: 100px; margin-right: 100px">
+                        <div style="background-color: #51575d;" class="card-header">
+                            <h5 style="color: whitesmoke">Mail-sender</h5>
+                        </div>
+                        <div class="card-block">
+                            <p class="card-text">
+                            <div class="container">
+                                <div class="row justify-content-md-center">
+
+                                    <form style="width: 90%;">
+                                        <div class="form-group">
+                                            <label for="inputEmail1">Send to</label>
+                                            <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+
+                                            <label for="inputObject">Object</label>
+                                            <input type="text" class="form-control" id="inputObject" placeholder="Enter object">
+
+                                            <label for="inputTextArea">Body</label>
+                                            <textarea class="form-control" id="inputTextArea" rows="3"></textarea>
+                                        </div>
+                                        <button id="submitbtn" type="submit" class="btn btn-primary">Submit</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {% if app.user %}
+    <script>
+        $('#submitbtn').on('click', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "{{ path('app_default_handleemail') }}",
+                context: document.body,
+                dataType: "json",
+                data: {
+                    mail: {
+                        "to": $('#inputEmail').val(),
+                        "objet": $('#inputObject').val(),
+                        "body": $('#inputTextArea').val(),
+                    }
+                }
+            }).done(function(data) {
+                if (data == "ok") {
+                    $('#inputEmail').val('');
+                    $('#inputObject').val('');
+                    $('#inputTextArea').val('');
+                } else {
+                    alert('Erreur');
+                }
+            });
+        });
+    </script>
+    {% endif %}
+{% endblock %}
